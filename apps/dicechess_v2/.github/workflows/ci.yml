@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  engine-and-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install engine deps
+        run: |
+          cd dicechess_v2/packages/dice_chess_engine
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+      - name: Engine tests
+        run: |
+          cd dicechess_v2/packages/dice_chess_engine
+          pytest -q
+      - name: Install server deps
+        run: |
+          cd dicechess_v2/apps/server_fastapi
+          pip install -r requirements.txt
+          pip install -e ../../packages/dice_chess_engine
+      - name: Server tests
+        run: |
+          cd dicechess_v2/apps/server_fastapi
+          pytest -q
